@@ -40,7 +40,7 @@ string getUSFID()
 		//get USFID but make sure ID is equal to 10 characters or less. Try again if not correct.
 		cout << "USFID: ";
 		cin >> USFID;
-		if (USFID.length() <= 10)
+		if (USFID.length() == 10)
 			break;
 		cin.clear();
 		cin.ignore(123, '\n');
