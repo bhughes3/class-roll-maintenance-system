@@ -2,7 +2,7 @@
 #include <string>
 #include <list>
 #include <fstream>
-
+#include <sstream>
 
 
 using namespace std;
@@ -15,19 +15,22 @@ int getTermProjectGrade();
 
 string getName()
 {
-	string name;
+	string firstName;
+	string lastName;
 	while (true)
 	{
 		//get name but make sure name is up to 40 characters or less. Try again if not correct.
-		cout << "Name: ";
-		cin >> name;
-		if (name.length() <= 40)
+		cout << "First Name: ";
+		cin >> firstName;
+		cout << "Last Name: ";
+		cin >> lastName;
+		if ((firstName.length() + lastName.length()) <= 40)
 			break;
 		cin.clear();
 		cin.ignore(123, '\n');
-		cout << "Name must less than 40 characters" << endl;
+		cout << "Name must be less than 40 characters" << endl;
 	}
-
+	string name = firstName + " " + lastName;
 	return name;
 }
 
@@ -40,7 +43,7 @@ string getUSFID()
 		//get USFID but make sure ID is equal to 10 characters or less. Try again if not correct.
 		cout << "USFID: ";
 		cin >> USFID;
-		if (USFID.length() <= 10)
+		if (USFID.length() == 10)
 			break;
 		cin.clear();
 		cin.ignore(123, '\n');
@@ -63,7 +66,7 @@ string getEmail()
 			break;
 		cin.clear();
 		cin.ignore(123, '\n');
-		cout << "Email must less than 40 characters" << endl;
+		cout << "Email must be less than 40 characters" << endl;
 	}
 
 	return email;
@@ -130,9 +133,10 @@ int getTermProjectGrade()
 class Student
 {	
 public:
-	bool operator == (const Student& s) const { return name == s.name && usfid == s.usfid && email == s.email && GradeofPresentation == s.GradeofPresentation && GradeofEssay == s.GradeofEssay && GradeofProject == s.GradeofProject; }
+	bool operator == (const Student& s) const { return firstName == s.firstName && lastName == s.lastName && usfid == s.usfid && email == s.email && GradeofPresentation == s.GradeofPresentation && GradeofEssay == s.GradeofEssay && GradeofProject == s.GradeofProject; }
 	bool operator != (const Student& s) const { return !operator == (s); }
-	string name;
+	string firstName;
+	string lastName;
 	string usfid;
 	string email;
 	int GradeofPresentation = 0;
@@ -149,8 +153,8 @@ list<Student> read_student()
 
 	myfile.open("student.txt");
 	if (myfile.is_open()) {
-		while (myfile >> stud.name >> stud.usfid >> stud.email >> stud.GradeofPresentation >> stud.GradeofEssay >> stud.GradeofProject) {
-			cout << stud.name << " " << stud.usfid << " " << stud.email << " " << stud.GradeofPresentation << " " << stud.GradeofEssay << " " << stud.GradeofProject << "\n";
+		while (myfile >> stud.firstName >> stud.lastName >> stud.usfid >> stud.email >> stud.GradeofPresentation >> stud.GradeofEssay >> stud.GradeofProject) {
+			cout << stud.firstName << " " << stud.lastName << " " << stud.usfid << " " << stud.email << " " << stud.GradeofPresentation << " " << stud.GradeofEssay << " " << stud.GradeofProject << "\n";
 			Student_list.push_back(stud);
 		}
 		myfile.close();
@@ -168,7 +172,7 @@ void write_into(list<Student> Student_list)
 	list<Student>::iterator itr;
 	if (myfile.is_open()) {
 		for (itr = Student_list.begin(); itr != Student_list.end(); ++itr) {
-			myfile << itr->name << " " << itr->usfid << " " << itr->email << " " << itr->GradeofPresentation << " " << itr->GradeofEssay << " " << itr->GradeofProject << "\n";
+			myfile << itr->firstName << " " << itr->lastName << " " << itr->usfid << " " << itr->email << " " << itr->GradeofPresentation << " " << itr->GradeofEssay << " " << itr->GradeofProject << "\n";
 		}
 		myfile.close();
 	}
@@ -177,7 +181,15 @@ void write_into(list<Student> Student_list)
 list<Student> add_student(list<Student> Stud_list)
 {
 	Student stud;
-	stud.name = getName();
+
+	string firstname, lastname;
+	string name = getName();
+	stringstream ss(name);
+	getline(ss, firstname, ' ');
+	getline(ss, lastname);
+
+	stud.firstName = firstname;
+	stud.lastName = lastname;
 	stud.usfid = getUSFID();
 	stud.email = getEmail();
 	stud.GradeofPresentation = getPresentationGrade();
@@ -185,7 +197,6 @@ list<Student> add_student(list<Student> Stud_list)
 	stud.GradeofProject = getTermProjectGrade();
 	
 	Stud_list.push_back(stud);
-	
 	return Stud_list;
 	
 }
@@ -194,16 +205,19 @@ list<Student> delete_student(list<Student> Stud_list)
 {
 	//list<Student> Student_list1 = Student_list;
 
-	string name;
-	cout << "enter the name who you want to delete: ";
-	cin >> name;
+	string firstname, lastname;
+	cout << "Enter the first name you want to delete: ";
+	cin >> firstname;
+	cout << "Enter the last name you want to delete: ";
+	cin >> lastname;
 	Student stud;
 	list<Student>::iterator itr;
 	for ( itr = Stud_list.begin(); itr != Stud_list.end(); ++itr) {
 	
-		if (itr->name == name) {
+		if (itr->firstName == firstname && itr->lastName == lastname) {
 			
-			stud.name = itr->name;
+			stud.firstName = itr->firstName;
+			stud.lastName = itr->lastName;
 			stud.usfid = itr->usfid;
 			stud.email = itr->email;
 			stud.GradeofPresentation = itr->GradeofPresentation;
@@ -218,13 +232,15 @@ list<Student> delete_student(list<Student> Stud_list)
 
 void retrieve_name(list<Student> Student_list)
 {
-	string name;
-	cout << "Enter the name you want to retrieve: ";
-	cin >> name;
+	string firstname, lastname;
+	cout << "Enter the first name you want to retrieve: ";
+	cin >> firstname;
+	cout << "Enter the last name you want to retrieve: ";
+	cin >> lastname;
 	list<Student>::iterator it;
 	for (it = Student_list.begin(); it != Student_list.end(); ++it) {
-		if (it->name == name) {
-			cout << it->name << " " << it->usfid << " " << it->email << " " << it->GradeofPresentation << " " << it->GradeofEssay << " " << it->GradeofProject << "\n";
+		if (it->firstName == firstname && it->lastName == lastname) {
+			cout << it->firstName << " " << it->lastName << " " << it->usfid << " " << it->email << " " << it->GradeofPresentation << " " << it->GradeofEssay << " " << it->GradeofProject << "\n";
 		}
 	}
 }
@@ -236,7 +252,7 @@ void retrieve_usfid(list<Student> Student_list)
 	list<Student>::iterator it;
 	for (it = Student_list.begin(); it != Student_list.end(); ++it) {
 		if (it->usfid == usfid) {
-			cout << it->name << " " << it->usfid << " " << it->email << " " << it->GradeofPresentation << " " << it->GradeofEssay << " " << it->GradeofProject << "\n";
+			cout << it->firstName << " " << it->lastName << " " << it->usfid << " " << it->email << " " << it->GradeofPresentation << " " << it->GradeofEssay << " " << it->GradeofProject << "\n";
 		}
 	}
 }
@@ -249,7 +265,7 @@ void retrieve_email(list<Student> Student_list)
 	list<Student>::iterator it;
 	for (it = Student_list.begin(); it != Student_list.end(); ++it) {
 		if (it->email == email) {
-			cout << it->name << " " << it->usfid << " " << it->email << " " << it->GradeofPresentation << " " << it->GradeofEssay << " " << it->GradeofProject << "\n";
+			cout << it->firstName << " " << it->lastName << " " << it->usfid << " " << it->email << " " << it->GradeofPresentation << " " << it->GradeofEssay << " " << it->GradeofProject << "\n";
 		}
 	}
 }
